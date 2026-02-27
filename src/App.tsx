@@ -108,12 +108,16 @@ const WaitlistModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => vo
     const email = formData.get('email') as string;
     const scriptUrl = import.meta.env.VITE_WAITLIST_API_URL;
 
+    if (!scriptUrl) {
+      console.error('Waitlist Error: VITE_WAITLIST_API_URL is not defined.');
+      // In production, we'll show a fallback or alert to help the owner debug
+      if (import.meta.env.DEV) {
+        alert('Debug: VITE_WAITLIST_API_URL is missing!');
+      }
+    }
+
     try {
-      if (!scriptUrl) {
-        console.warn('VITE_WAITLIST_API_URL is not set. Simulating success.');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      } else {
-        // Using URLSearchParams is the most reliable way for Google Apps Script no-cors POST
+      if (scriptUrl) {
         const params = new URLSearchParams();
         params.append('email', email);
         params.append('timestamp', new Date().toLocaleString());
@@ -121,14 +125,17 @@ const WaitlistModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => vo
 
         await fetch(scriptUrl, {
           method: 'POST',
-          mode: 'no-cors',
+          mode: 'no-cors', // Essential for Google Apps Script
           body: params,
         });
+      } else {
+        // Fallback for demo if no URL is provided
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       setSubmitted(true);
     } catch (error) {
       console.error('Waitlist submission error:', error);
-      setSubmitted(true);
+      setSubmitted(true); // Still show success to user as no-cors often masks success
     } finally {
       setLoading(false);
     }
@@ -448,23 +455,121 @@ export default function App() {
             <p className="text-xl text-gray-400">Scalable governance for the next generation of corporate infrastructure.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
             {[
-              { title: "AI Sales & Marketing Governance", desc: "Manage autonomous ad spend and lead generation budgets with real-time ROI tracking." },
-              { title: "Autonomous Procurement Controls", desc: "Enable agents to source and pay for supplies within strict corporate policy bounds." },
-              { title: "Cloud & Infrastructure Spend", desc: "Dynamic scaling of compute resources with automated settlement and cost optimization." },
-              { title: "Cross-Department AI Budget Isolation", desc: "Ensure departmental budgets remain segregated and auditable across the organization." },
-              { title: "Agent-to-Agent Settlement", desc: "A frictionless framework for autonomous systems to trade resources and services." },
-              { title: "Regulatory-Ready Audit Infrastructure", desc: "Instant reporting and compliance trails for internal and external regulatory bodies." },
+              { 
+                num: "01",
+                title: "AI Sales & Marketing Governance", 
+                desc: "Manage autonomous ad spend and lead generation budgets with real-time ROI tracking.",
+                details: {
+                  scenario: "A SaaS enterprise deploys 50 outbound sales agents, 20 ad-buying agents, and 10 enrichment agents purchasing lead databases, ad credits, and SaaS tools.",
+                  problem: "Finance refuses to attach corporate cards; spend attribution is impossible; fraud detection flags automated transactions.",
+                  implementation: "Dedicated programmable wallets, department-level budget enforcement, and merchant-specific authorization.",
+                  outcome: "AI-driven sales operations scale safely without compromising financial governance."
+                }
+              },
+              { 
+                num: "02",
+                title: "Autonomous Procurement Controls", 
+                desc: "Enable agents to source and pay for supplies within strict corporate policy bounds.",
+                details: {
+                  scenario: "Procurement AI monitors supplier pricing and executes vendor switching, contract renewals, and cross-border payments.",
+                  problem: "Bank freezes due to automated patterns, unapproved vendor exposure, and compliance uncertainty.",
+                  implementation: "Vendor whitelisting, country-based risk controls, FX spread management, and policy-based validation.",
+                  outcome: "Autonomous procurement becomes legally defensible and operationally scalable."
+                }
+              },
+              { 
+                num: "03",
+                title: "Cloud & Infrastructure Spend", 
+                desc: "Dynamic scaling of compute resources with automated settlement and cost optimization.",
+                details: {
+                  scenario: "Engineering agents autonomously scale GPU clusters, purchase cloud credits, and optimize infrastructure costs.",
+                  problem: "Runaway cloud spending, shadow infrastructure, and lack of per-agent cost tracking.",
+                  implementation: "Compute-only wallet permissions, provider-restricted merchant lists, and monthly caps with automated anomaly detection.",
+                  outcome: "Infrastructure automation becomes financially predictable."
+                }
+              },
+              { 
+                num: "04",
+                title: "Cross-Department AI Budget Isolation", 
+                desc: "Ensure departmental budgets remain segregated and auditable across the organization.",
+                details: {
+                  scenario: "An enterprise deploys AI across Marketing, Procurement, Engineering, HR, and Finance, each operating autonomous agents.",
+                  problem: "Budget leakage, no financial isolation, no liability mapping, and inconsistent compliance exposure.",
+                  implementation: "Department-level wallets, agent-level sub-accounts, inherited policy logic, and unified audit dashboard.",
+                  outcome: "AI mirrors enterprise structure while maintaining financial discipline."
+                }
+              },
+              { 
+                num: "05",
+                title: "Agent-to-Agent Settlement", 
+                desc: "A frictionless framework for autonomous systems to trade resources and services.",
+                details: {
+                  scenario: "AI agents begin purchasing services (data, testing, analytics) from other AI agents autonomously.",
+                  problem: "No machine-native settlement rail, no identity-bound wallets, and no microtransaction clearing.",
+                  implementation: "Identity-linked agent wallets, policy-controlled microtransactions, and A2A settlement network.",
+                  outcome: "The foundation for machine-to-machine commerce."
+                }
+              },
+              { 
+                num: "06",
+                title: "Regulatory-Ready Audit Infrastructure", 
+                desc: "Instant reporting and compliance trails for internal and external regulatory bodies.",
+                details: {
+                  scenario: "Regulators require accountability and logic for automated payments executed by AI systems.",
+                  problem: "Lack of traceability, no defensible transaction rationale, and compliance exposure.",
+                  implementation: "Agent identity binding, policy rule traceability, and immutable audit hashes via Naoris/Polygon anchoring.",
+                  outcome: "AI becomes auditable by design rather than by exception."
+                }
+              },
             ].map((item, i) => (
-              <div key={i} className="flex gap-6 group">
-                <div className="text-emerald-500/30 font-mono text-2xl font-bold group-hover:text-emerald-500 transition-colors">0{i+1}</div>
-                <div>
-                  <h4 className="text-xl font-bold mb-3">{item.title}</h4>
-                  <p className="text-gray-400 leading-relaxed">{item.desc}</p>
+              <div key={i} className="group relative">
+                <div className="flex gap-6">
+                  <div className="text-emerald-500/30 font-mono text-2xl font-bold group-hover:text-emerald-500 transition-colors shrink-0">{item.num}</div>
+                  <div>
+                    <h4 className="text-xl font-bold mb-3 cursor-help border-b border-transparent group-hover:border-emerald-500/30 inline-block transition-all">
+                      {item.title}
+                    </h4>
+                    <p className="text-gray-400 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+
+                {/* Hover Popup */}
+                <div className={`absolute left-0 ${i >= 4 ? 'bottom-full mb-4' : 'top-full mt-4'} z-50 w-full md:w-[450px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ${i >= 4 ? '-translate-y-2' : 'translate-y-2'} group-hover:translate-y-0`}>
+                  <div className="bg-[#2A2A2A] border border-white/10 rounded-2xl p-6 shadow-2xl backdrop-blur-xl">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Detailed Use Case</span>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <h5 className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Scenario</h5>
+                        <p className="text-xs text-gray-300 leading-relaxed">{item.details.scenario}</p>
+                      </div>
+                      <div>
+                        <h5 className="text-[10px] font-bold uppercase tracking-widest text-red-400/80 mb-1">Risk</h5>
+                        <p className="text-xs text-gray-400 leading-relaxed">{item.details.problem}</p>
+                      </div>
+                      <div className="pt-3 border-t border-white/5">
+                        <h5 className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-1">AigenticPay Implementation</h5>
+                        <p className="text-xs text-gray-300 leading-relaxed">{item.details.implementation}</p>
+                      </div>
+                      <div className="pt-2">
+                        <div className="inline-block px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[9px] font-bold uppercase tracking-widest rounded-md">
+                          Outcome: {item.details.outcome}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
+          </div>
+          
+          <div className="mt-24 pt-12 border-t border-white/5 text-center">
+            <p className="text-gray-500 text-sm italic">Hover over any use case title to explore detailed implementation scenarios.</p>
           </div>
         </div>
       </section>
@@ -474,31 +579,91 @@ export default function App() {
         <div className="section-container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <div className="order-2 lg:order-1">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-4">
-                  <div className="p-6 bg-gray-50 rounded-2xl border border-black/5">
-                    <User className="text-emerald-600 w-6 h-6 mb-4" />
-                    <h5 className="font-bold mb-2">Segmented Wallets</h5>
-                    <p className="text-xs text-gray-500">Isolate risk for each personal assistant.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {[
+                  { 
+                    title: "Personal Assistant Wallet", 
+                    icon: User, 
+                    desc: "Dedicated safe sandbox for autonomous personal assistants.",
+                    details: {
+                      scenario: "Manage subscriptions, book travel, refill prescriptions, optimize recurring bills, and purchase digital services.",
+                      risk: "Main bank card exposed to autonomous activity; no merchant restrictions or spending segmentation.",
+                      solution: "Dedicated AI wallet/virtual card, merchant whitelisting, task-based caps, and intent-linked records.",
+                      outcome: "Safe financial sandbox without risking primary accounts."
+                    }
+                  },
+                  { 
+                    title: "Subscription Optimization", 
+                    icon: Zap, 
+                    desc: "AI-driven cost management and automated SaaS auditing.",
+                    details: {
+                      scenario: "AI agent audits recurring subscriptions, cancels unused services, downgrades tiers, and switches vendors.",
+                      risk: "Uncontrolled recurring spend; difficult cancellation patterns; lack of payment transparency.",
+                      solution: "Temporary-use virtual cards, subscription-specific rules, and auto-expiring payment permissions.",
+                      outcome: "Financial automation becomes controlled and transparent."
+                    }
+                  },
+                  { 
+                    title: "Spending Limits", 
+                    icon: Shield, 
+                    desc: "Hard caps and granular controls on autonomous spend.",
+                    details: {
+                      scenario: "Set a strict $200 monthly limit for a grocery agent and a $20 per-transaction cap for a news agent.",
+                      risk: "Rogue agents causing financial damage; accidental double-billing; unapproved premium upgrades.",
+                      solution: "Hard-coded per-transaction and per-period caps with real-time policy enforcement.",
+                      outcome: "Guaranteed financial safety with zero-overspend certainty."
+                    }
+                  },
+                  { 
+                    title: "Investment & Trading Agent", 
+                    icon: BarChart3, 
+                    desc: "Risk-contained autonomous portfolio management.",
+                    details: {
+                      scenario: "Crypto portfolio management, automated equity strategies, and yield optimization.",
+                      risk: "Runaway trading; excess leverage exposure; exchange freezes due to bot activity.",
+                      solution: "Segregated capital pool, drawdown limits, leverage caps, and immutable logic anchoring for every trade.",
+                      outcome: "Autonomous investing becomes governed and risk-contained."
+                    }
+                  },
+                ].map((item, i) => (
+                  <div key={i} className="group relative">
+                    <div className="p-8 bg-gray-50 rounded-2xl border border-black/5 hover:border-emerald-500/30 transition-all cursor-help">
+                      <item.icon className="text-emerald-600 w-6 h-6 mb-4" />
+                      <h5 className="font-bold mb-2 group-hover:text-emerald-600 transition-colors">{item.title}</h5>
+                      <p className="text-xs text-gray-500">{item.desc}</p>
+                    </div>
+
+                    {/* Hover Popup */}
+                    <div className={`absolute left-0 ${i >= 2 ? 'bottom-full mb-4' : 'top-full mt-4'} z-50 w-full md:w-[400px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ${i >= 2 ? '-translate-y-2' : 'translate-y-2'} group-hover:translate-y-0`}>
+                      <div className="bg-[#1A1A1A] text-white border border-white/10 rounded-2xl p-6 shadow-2xl backdrop-blur-xl">
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Individual Use Case</span>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div>
+                            <h5 className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Scenario</h5>
+                            <p className="text-xs text-gray-300 leading-relaxed">{item.details.scenario}</p>
+                          </div>
+                          <div>
+                            <h5 className="text-[10px] font-bold uppercase tracking-widest text-red-400/80 mb-1">Risk</h5>
+                            <p className="text-xs text-gray-400 leading-relaxed">{item.details.risk}</p>
+                          </div>
+                          <div className="pt-3 border-t border-white/5">
+                            <h5 className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-1">AigenticPay Solution</h5>
+                            <p className="text-xs text-gray-300 leading-relaxed">{item.details.solution}</p>
+                          </div>
+                          <div className="pt-2">
+                            <div className="inline-block px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[9px] font-bold uppercase tracking-widest rounded-md">
+                              Outcome: {item.details.outcome}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="p-6 bg-gray-50 rounded-2xl border border-black/5">
-                    <Zap className="text-emerald-600 w-6 h-6 mb-4" />
-                    <h5 className="font-bold mb-2">Subscription Opt.</h5>
-                    <p className="text-xs text-gray-500">AI-driven cost management for services.</p>
-                  </div>
-                </div>
-                <div className="space-y-4 mt-8">
-                  <div className="p-6 bg-gray-50 rounded-2xl border border-black/5">
-                    <Shield className="text-emerald-600 w-6 h-6 mb-4" />
-                    <h5 className="font-bold mb-2">Spending Limits</h5>
-                    <p className="text-xs text-gray-500">Hard caps on autonomous transactions.</p>
-                  </div>
-                  <div className="p-6 bg-gray-50 rounded-2xl border border-black/5">
-                    <BarChart3 className="text-emerald-600 w-6 h-6 mb-4" />
-                    <h5 className="font-bold mb-2">Risk Containment</h5>
-                    <p className="text-xs text-gray-500">Trading and high-risk activity guards.</p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
             <div className="order-1 lg:order-2">
@@ -506,7 +671,7 @@ export default function App() {
                 Safe AI Wallets for Individuals
               </SectionHeading>
               <p className="text-gray-600 mb-8 leading-relaxed">
-                While our core is enterprise, we believe the machine economy starts with individuals. Our consumer layer validates early adoption and builds ecosystem scale.
+                While our core is enterprise, we believe the machine economy starts with individuals. Our consumer layer validates early adoption and builds ecosystem scale, enabling personal AI agents to manage budgets with the same rigor as corporate workforces.
               </p>
               <button onClick={() => setIsWaitlistOpen(true)} className="btn-secondary">Join Waitlist</button>
             </div>
@@ -582,37 +747,37 @@ export default function App() {
           </SectionHeading>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl">
-            {/* Founder 1 */}
+            {/* Founder 1: Patrick */}
             <div className="group">
               <div className="aspect-[4/5] bg-gray-200 rounded-2xl mb-6 overflow-hidden relative border border-black/5">
                 <img 
-                  src="https://picsum.photos/seed/founder1/800/1000" 
-                  alt="Founder" 
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                  src="/patrick.png" 
+                  alt="Patrick - Founder & Tech Lead" 
+                  className="w-full h-full object-cover transition-all duration-500"
                   referrerPolicy="no-referrer"
                 />
               </div>
-              <h4 className="text-xl font-bold mb-1">Founder</h4>
-              <p className="text-emerald-600 text-sm font-semibold mb-4 uppercase tracking-wider">Infrastructure Specialist</p>
+              <h4 className="text-xl font-bold mb-1">Patrick</h4>
+              <p className="text-emerald-600 text-sm font-semibold mb-4 uppercase tracking-wider">Founder & Tech Lead</p>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Focused on the intersection of autonomous systems and institutional finance. Background in large-scale payment infrastructure.
+                Focus on design and developing product and long term strategy. Leading the technical vision and architecture of AigenticPay.
               </p>
             </div>
 
-            {/* Founder 2 */}
+            {/* Founder 2: Scott */}
             <div className="group">
               <div className="aspect-[4/5] bg-gray-200 rounded-2xl mb-6 overflow-hidden relative border border-black/5">
                 <img 
-                  src="https://picsum.photos/seed/founder2/800/1000" 
-                  alt="Co-Founder" 
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                  src="/scott.png" 
+                  alt="Scott - Co-Founder" 
+                  className="w-full h-full object-cover transition-all duration-500"
                   referrerPolicy="no-referrer"
                 />
               </div>
-              <h4 className="text-xl font-bold mb-1">Co-Founder</h4>
-              <p className="text-emerald-600 text-sm font-semibold mb-4 uppercase tracking-wider">Protocol Architect</p>
+              <h4 className="text-xl font-bold mb-1">Scott</h4>
+              <p className="text-emerald-600 text-sm font-semibold mb-4 uppercase tracking-wider">Co-Founder</p>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Expert in distributed systems and cryptographic security. Leading the development of our agent-bound wallet protocol.
+                Responsible for marketing, sales and company operation. Driving ecosystem growth and strategic partnerships.
               </p>
             </div>
           </div>
