@@ -752,7 +752,7 @@ export default function App() {
               <div className="aspect-[4/5] bg-gray-200 rounded-2xl mb-6 overflow-hidden relative border border-black/5">
                 <img 
                   src="/patrick.png" 
-                  alt="Patrick - Founder & Tech Lead" 
+                  alt="Patrick Huang - Founder & Tech Lead" 
                   className="w-full h-full object-cover transition-all duration-500"
                   referrerPolicy="no-referrer"
                 />
@@ -769,7 +769,7 @@ export default function App() {
               <div className="aspect-[4/5] bg-gray-200 rounded-2xl mb-6 overflow-hidden relative border border-black/5">
                 <img 
                   src="/scott.png" 
-                  alt="Scott - Co-Founder" 
+                  alt="Scott MacAndrew - Co-Founder" 
                   className="w-full h-full object-cover transition-all duration-500"
                   referrerPolicy="no-referrer"
                 />
