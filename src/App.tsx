@@ -757,7 +757,7 @@ export default function App() {
                   referrerPolicy="no-referrer"
                 />
               </div>
-              <h4 className="text-xl font-bold mb-1">Patrick</h4>
+              <h4 className="text-xl font-bold mb-1">Patrick Huang</h4>
               <p className="text-emerald-600 text-sm font-semibold mb-4 uppercase tracking-wider">Founder & Tech Lead</p>
               <p className="text-gray-600 text-sm leading-relaxed">
                 Focus on design and developing product and long term strategy. Leading the technical vision and architecture of AigenticPay.
@@ -774,7 +774,7 @@ export default function App() {
                   referrerPolicy="no-referrer"
                 />
               </div>
-              <h4 className="text-xl font-bold mb-1">Scott</h4>
+              <h4 className="text-xl font-bold mb-1">Scott MacAndrew</h4>
               <p className="text-emerald-600 text-sm font-semibold mb-4 uppercase tracking-wider">Co-Founder</p>
               <p className="text-gray-600 text-sm leading-relaxed">
                 Responsible for marketing, sales and company operation. Driving ecosystem growth and strategic partnerships.
